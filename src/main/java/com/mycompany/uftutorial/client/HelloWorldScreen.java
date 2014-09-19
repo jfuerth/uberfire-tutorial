@@ -6,6 +6,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.errai.security.client.local.api.SecurityContext;
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
@@ -45,7 +47,18 @@ public class HelloWorldScreen {
   }
 
   private String getInitialLabelText() {
-    return "Hello, " + securityContext.getCachedUser().getIdentifier() + ". Welcome to UberFire!";
+    StringBuilder sb = new StringBuilder();
+    sb.append("Hello, ").append(securityContext.getCachedUser().getIdentifier());
+    sb.append(". Welcome to UberFire!");
+    sb.append(" Your roles: ");
+    for (Role role : securityContext.getCachedUser().getRoles()) {
+      sb.append(role.getName()).append(" ");
+    }
+    sb.append(" Your groups: ");
+    for (Group group : securityContext.getCachedUser().getGroups()) {
+      sb.append(group.getName()).append(" ");
+    }
+    return sb.toString();
   }
 
   @WorkbenchToolBar

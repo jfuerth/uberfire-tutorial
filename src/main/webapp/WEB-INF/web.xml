@@ -20,10 +20,6 @@
       <param-value>uf-admin,role1,role2,admin,analyst</param-value>
     </init-param>
     <init-param>
-      <param-name>host-page</param-name>
-      <param-value>/tutorial.html</param-value>
-    </init-param>
-    <init-param>
       <param-name>forceReAuthentication</param-name>
       <param-value>true</param-value>
     </init-param>
@@ -53,6 +49,10 @@
   <servlet>
     <servlet-name>LoginRedirectServlet</servlet-name>
     <servlet-class>com.mycompany.uftutorial.server.LoginRedirectServlet</servlet-class>
+    <init-param>
+      <param-name>display-after-login</param-name>
+      <param-value>/tutorial.html</param-value>
+    </init-param>
   </servlet>
 
   <servlet-mapping>

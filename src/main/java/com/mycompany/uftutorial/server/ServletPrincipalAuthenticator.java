@@ -1,15 +1,10 @@
 package com.mycompany.uftutorial.server;
 
 import java.security.Principal;
-import java.security.acl.Group;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.security.auth.Subject;
 
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
@@ -19,6 +14,19 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 
+/**
+ * A PicketLink Authenticator that pairs with {@link ServletRequestAuthScheme} to integrate PicketLink logins with
+ * standard Servlet API logins. This class is automatically picked up and used by PicketLink as long as it is on the
+ * classpath, but it will only function properly on web requests that were intercepted by PicketLink's
+ * AuthenticationFilter configured with the ServletRequestAuthScheme.
+ * <p>
+ * Design note: it would probably be a better design if this class was an IdentityStore rather than an Authenticator.
+ * The way this Authenticator works is to insert new users and roles into whatever IdentityStore is currently in use
+ * within PicketLink, which introduces unnecessary statefulness into the process and is fertile ground for lurking bugs.
+ *
+ * @see org.picketlink.authentication.web.AuthenticationFilter
+ * @see ServletRequestAuthScheme
+ */
 @ApplicationScoped
 @PicketLink
 public class ServletPrincipalAuthenticator extends BaseAuthenticator {
@@ -36,8 +44,6 @@ public class ServletPrincipalAuthenticator extends BaseAuthenticator {
         setStatus( AuthenticationStatus.FAILURE );
         return;
       }
-
-      Principal servletPrincipal = (Principal) credentials.getCredential();
 
       // FIXME These are persistent operations in PicketLink. Copying JAAS users into the PL identity store is not a good idea.
       // We probably need to change this class to be an IdentityStore rather than an Authenticator.
@@ -83,52 +89,4 @@ public class ServletPrincipalAuthenticator extends BaseAuthenticator {
         }
         return resultList.get(0);
     }
-
-    PicketLinkJaasSettings resolveSettings() {
-        // TODO
-        return new PicketLinkJaasSettings();
-    }
-
-    /**
-     * Extracts all roles from the given subject, returning them as a list of PicketLink Role objects.
-     *
-     * @param subject
-     *            The JAAS subject to extract role names from
-     * @param settings
-     *            Settings that influence the way the roles are looked up. See
-     *            {@link PicketLinkJaasSettings#getRolePrincipalName()}.
-     * @return the list of roles the given subject belongs to.
-     */
-    private static List<String> getJaasRoles( final Subject subject, final PicketLinkJaasSettings settings ) {
-        final List<String> roles = new ArrayList<String>();
-        try {
-            if ( subject != null ) {
-                final Set<java.security.Principal> principals = subject.getPrincipals();
-
-                if ( principals != null ) {
-                    for ( java.security.Principal p : principals ) {
-                        if ( p instanceof Group && settings.getRolePrincipalName().equalsIgnoreCase( p.getName() ) ) {
-                            final Enumeration<? extends java.security.Principal> groups = ( (Group) p ).members();
-                            while ( groups.hasMoreElements() ) {
-                                final java.security.Principal groupPrincipal = groups.nextElement();
-                                roles.add( groupPrincipal.getName() );
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                // TODO implement this (needed for WebLogic support)
-//                if ( rolesAdapterServiceLoader != null && rolesAdapterServiceLoader.iterator().hasNext() ) {
-//                    for ( final RolesAdapter rolesAdapter : rolesAdapterServiceLoader ) {
-//                        rolesAdapter.getRoles( principal, securityContext, mode );
-//                    }
-//                }
-            }
-        } catch ( Exception e ) {
-            throw new RuntimeException( e );
-        }
-        return roles;
-    }
-
 }
