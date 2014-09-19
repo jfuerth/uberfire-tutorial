@@ -51,8 +51,6 @@ public class LoginRedirectServlet extends HttpServlet {
   public static final String DISPLAY_AFTER_LOGIN_INIT_PARAM = "display-after-login";
   public static final String SET_USER_COOKIE_INIT_PARAM = "set-user-cookie";
 
-  private static final String ERRAI_USER_ATTRIB = "errai-user";
-
   /**
    * URI of the GWT host page, relative to the servlet container root (so it starts with '/' and includes the context
    * path).
@@ -78,7 +76,7 @@ public class LoginRedirectServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     System.out.println(getClass().getSimpleName() + " is redirecting " + req.getUserPrincipal() + " to " + displayAfterLoginUri);
 
-    User user = (User) req.getAttribute(ERRAI_USER_ATTRIB);
+    User user = (User) req.getSession().getAttribute(User.class.getName());
     if (user != null) {
       System.out.println("  Setting user cookie on redirect response");
       Cookie erraiUserCacheCookie = new Cookie(

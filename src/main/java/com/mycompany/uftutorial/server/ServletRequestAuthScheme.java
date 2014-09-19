@@ -2,14 +2,19 @@ package com.mycompany.uftutorial.server;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.inject.Inject;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.errai.marshalling.server.MappingContextSingleton;
-import org.jboss.errai.security.shared.service.AuthenticationService;
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
+import org.jboss.errai.security.shared.api.RoleImpl;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.jboss.errai.security.shared.api.identity.UserImpl;
 import org.picketlink.authentication.web.HTTPAuthenticationScheme;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -18,9 +23,6 @@ import org.picketlink.idm.credential.Credentials.Status;
 public class ServletRequestAuthScheme implements HTTPAuthenticationScheme {
 
   public static final String PROBE_ROLES_INIT_PARAM = "probe-for-roles";
-
-  @Inject
-  private AuthenticationService authenticationService;
 
   private String[] probeRoles;
 
@@ -39,16 +41,29 @@ public class ServletRequestAuthScheme implements HTTPAuthenticationScheme {
   }
 
   @Override
-  public void extractCredential( HttpServletRequest request, DefaultLoginCredentials creds ) {
+  public void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds) {
     System.out.println(getClass().getSimpleName() + ".extractCredential()" + request.getRequestURI());
     Principal authenticatedUser = request.getUserPrincipal();
     if ( authenticatedUser != null ) {
       System.out.println("Found authenticated servlet user " + authenticatedUser.getName());
-      creds.setCredential( authenticatedUser );
-      creds.setStatus( Status.VALID );
-      creds.setUserId( authenticatedUser.getName() );
 
-      // TODO probe for group membership and save in credential
+      List<Role> userRoles = new ArrayList<Role>();
+      for (String checkRole : probeRoles) {
+        if (request.isUserInRole(checkRole)) {
+          userRoles.add(new RoleImpl(checkRole));
+        }
+      }
+
+      List<Group> userGroups = new ArrayList<Group>();
+      // TODO extract groups (special code for WAS is in UberFire 0.4)
+
+      User user = new UserImpl(authenticatedUser.getName(), userRoles, userGroups);
+
+      creds.setCredential(user);
+      creds.setStatus(Status.VALID);
+      creds.setUserId(authenticatedUser.getName());
+
+      request.getSession().setAttribute(User.class.getName(), user);
     } else {
       System.out.println("No user in request");
     }
