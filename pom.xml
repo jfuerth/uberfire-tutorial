@@ -104,12 +104,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.uberfire.extras</groupId>
-      <artifactId>pl-jaas-authenticator</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.owasp.encoder</groupId>
       <artifactId>encoder</artifactId>
       <version>1.1.1</version>
@@ -291,7 +285,7 @@
           <runTarget>${project.artifactId}</runTarget>
 
           <!-- do not insert line breaks in this string; it breaks Windows compatibility -->
-          <extraJvmArgs>-Xmx1g -Xms756m -XX:MaxPermSize=256m -XX:CompileThreshold=1000 -Derrai.jboss.home=${errai.jboss.home} "-Derrai.jboss.javaopts=-XX:MaxPermSize=256m -Dorg.jboss.weld.nonPortableMode=true" -Derrai.dev.context=${project.artifactId} -Derrai.jboss.javaagent.path=${settings.localRepository}/org/jboss/errai/errai-client-local-class-hider/${errai.devmode.version}/errai-client-local-class-hider-${errai.devmode.version}.jar=classPattern=${project.groupId}.client/.*</extraJvmArgs>
+          <extraJvmArgs>-Xmx1g -Xms756m -XX:MaxPermSize=256m -XX:CompileThreshold=1000 -Derrai.jboss.home=${errai.jboss.home} -Derrai.jboss.debug.port=8787 "-Derrai.jboss.javaopts=-XX:MaxPermSize=256m -Dorg.jboss.weld.nonPortableMode=true" -Derrai.dev.context=${project.artifactId} -Derrai.jboss.javaagent.path=${settings.localRepository}/org/jboss/errai/errai-client-local-class-hider/${errai.devmode.version}/errai-client-local-class-hider-${errai.devmode.version}.jar=classPattern=${project.groupId}.client/.*</extraJvmArgs>
 
         </configuration>
         <executions>
