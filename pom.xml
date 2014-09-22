@@ -90,17 +90,18 @@
     <dependency>
       <groupId>org.uberfire</groupId>
       <artifactId>uberfire-server</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.errai</groupId>
+          <artifactId>errai-security-picketlink</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.uberfire</groupId>
       <artifactId>uberfire-security-client</artifactId>
       <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.errai</groupId>
-      <artifactId>errai-security-picketlink</artifactId>
     </dependency>
 
     <dependency>

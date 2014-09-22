@@ -5,9 +5,13 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jboss.errai.security.client.local.api.SecurityContext;
 import org.jboss.errai.security.shared.api.Group;
 import org.jboss.errai.security.shared.api.Role;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.jboss.errai.security.shared.service.AuthenticationService;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
@@ -18,8 +22,12 @@ import org.uberfire.workbench.model.toolbar.ToolBar;
 import org.uberfire.workbench.model.toolbar.impl.DefaultToolBar;
 import org.uberfire.workbench.model.toolbar.impl.DefaultToolBarItem;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.mycompany.uftutorial.shared.Mood;
 
 @Dependent
@@ -29,11 +37,32 @@ public class HelloWorldScreen {
   @Inject
   private SecurityContext securityContext;
 
-  private final Label label = new Label();
+  @Inject
+  private Caller<AuthenticationService> securityService;
+
+  private final VerticalPanel panel = new VerticalPanel();
+  private final Label helloLabel = new Label();
+  private final Button checkSecurityServiceButton = new Button("Ask server about current user");
+  private final Label securityServiceResponseLabel = new Label();
 
   @PostConstruct
   private void init() {
-    label.setText(getInitialLabelText());
+    helloLabel.setText(getInitialLabelText());
+    checkSecurityServiceButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        securityService.call(new RemoteCallback<User>() {
+          @Override
+          public void callback(User response) {
+            securityServiceResponseLabel.setText("Current user on server is " + response);
+          }
+        }).getUser();
+      }
+    });
+
+    panel.add(helloLabel);
+    panel.add(checkSecurityServiceButton);
+    panel.add(securityServiceResponseLabel);
   }
 
   @WorkbenchPartTitle
@@ -43,7 +72,7 @@ public class HelloWorldScreen {
 
   @WorkbenchPartView
   public IsWidget getView() {
-    return label;
+    return panel;
   }
 
   private String getInitialLabelText() {
@@ -67,13 +96,13 @@ public class HelloWorldScreen {
     tb.addItem(new DefaultToolBarItem(IconType.ASTERISK, "Reset Hello Screen", new Command() {
       @Override
       public void execute() {
-        label.setText(getInitialLabelText());
+        helloLabel.setText(getInitialLabelText());
       }
     }));
     return tb;
   }
 
   public void onMoodChange(@Observes Mood mood) {
-    label.setText("I understand you are feeling " + mood.getText());
+    helloLabel.setText("I understand you are feeling " + mood.getText());
   }
 }

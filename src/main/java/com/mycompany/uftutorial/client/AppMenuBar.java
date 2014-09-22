@@ -98,7 +98,12 @@ public class AppMenuBar extends Composite implements Header {
       authService.call(new RemoteCallback<Void>() {
         @Override
         public void callback(Void response) {
-          redirect(GWT.getHostPageBaseURL() + "login.jsp");
+          StringBuilder baseUrl = new StringBuilder();
+          baseUrl.append(GWT.getHostPageBaseURL());
+          if (Window.Location.getQueryString() != null) {
+            baseUrl.append(Window.Location.getQueryString());
+          }
+          redirect(baseUrl.toString());
         }
       }, new BusErrorCallback() {
         @Override

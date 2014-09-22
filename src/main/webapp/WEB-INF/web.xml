@@ -6,33 +6,19 @@
          version="3.0">
 
   <filter>
-    <filter-name>PicketLink Authentication Filter</filter-name>
-    <filter-class>org.picketlink.authentication.web.AuthenticationFilter</filter-class>
+    <filter-name>request-capture</filter-name>
+    <filter-class>com.mycompany.uftutorial.server.SecurityIntegrationFilter</filter-class>
 
-    <init-param>
-      <param-name>authType</param-name>
-      <param-value>com.mycompany.uftutorial.server.ServletRequestAuthScheme</param-value>
-    </init-param>
-    
-    <!-- TODO the auth scheme could read the web.xml and extract security-role declarations so they don't need to be specified redundantly -->
+    <!-- TODO the filter could read the web.xml and extract security-role declarations so they don't need to be specified redundantly -->
     <init-param>
       <param-name>probe-for-roles</param-name>
       <param-value>uf-admin,role1,role2,admin,analyst</param-value>
     </init-param>
-    <init-param>
-      <param-name>forceReAuthentication</param-name>
-      <param-value>true</param-value>
-    </init-param>
   </filter>
 
   <filter-mapping>
-    <filter-name>PicketLink Authentication Filter</filter-name>
-    <url-pattern>/tutorial.html</url-pattern>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>PicketLink Authentication Filter</filter-name>
-    <url-pattern>*.erraiBus</url-pattern>
+    <filter-name>request-capture</filter-name>
+    <url-pattern>*</url-pattern>
   </filter-mapping>
 
   <servlet>
